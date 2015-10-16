@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
             ivSun.startAnimation(translateAnimation);
             currentX = coordX;
             currentY = coordY;
-
         }
     };
 
