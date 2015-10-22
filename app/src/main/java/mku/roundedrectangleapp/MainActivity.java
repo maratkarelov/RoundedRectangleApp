@@ -1,39 +1,84 @@
 package mku.roundedrectangleapp;
 
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.TranslateAnimation;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
-    LinearLayout ll_iv;
-    ListView lvClock;
-    ImageView ivSun;
-    RoundedRectangle roundedRectangle;
-    float currentX, currentY;
+    FrameLayout frameLayout;
+    private LinearLayout llClock;
+    private ListView lvClock;
+    private Sun mSun;
+    private Landscape mLandscape;
+    private float startX, startY;
+    private float currentX, currentY;
+    private int width;
+    private boolean onStart = true;
+    private Point point1;
+    private Point point2;
+    private Point point3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ll_iv = (LinearLayout) findViewById(R.id.ll_iv);
-        roundedRectangle = new RoundedRectangle(MainActivity.this);
-        roundedRectangle.setmHeadHeight(0);
-        roundedRectangle.setmWaveHeight(200);
-        ll_iv.addView(roundedRectangle);
-        ivSun = (ImageView) findViewById(R.id.ivSun);
-        lvClock = (ListView) findViewById(R.id.lvClock);
+        frameLayout = (FrameLayout) findViewById(R.id.frame_image);
+        llClock = (LinearLayout) findViewById(R.id.ll_clock);
+        mLandscape = (Landscape) findViewById(R.id.landscape);
+        mSun = (Sun) findViewById(R.id.sun);
+        startX = (float) (mSun.getmRadiusSun() * 1.2);
+        startY = (mLandscape.getmWaveHeight() + mLandscape.getmHeadHeight() - mSun.getmRadiusSun());
+        ViewTreeObserver vto = mLandscape.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(listener);
+        mSun.setCoordX(startX);
+        mSun.setCoordY(startY);
+        lvClock = (ListView) findViewById(R.id.lv_clock);
         String[] hours = {"6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
         lvClock.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, hours));
         lvClock.setOnScrollListener(onScrollListener);
+    }
 
+    ViewTreeObserver.OnGlobalLayoutListener listener = new ViewTreeObserver.OnGlobalLayoutListener()
 
+    {
+        @Override
+        public void onGlobalLayout() {
+//                                              width = (int) (mLandscape.getMeasuredWidth() - 2 * startX);
+            point1 = new Point(0, 0);
+            point2 = new Point((int) (startX + mLandscape.getMeasuredWidth() / 2), mLandscape.getmWaveHeight());
+            point3 = new Point((int) (mLandscape.getMeasuredWidth() - 2 * startX), 0);
+            // handle viewWidth here...
+            if (Build.VERSION.SDK_INT < 16) {
+                mLandscape.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+            } else {
+                mLandscape.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        }
+    };
+
+    private int getRelativeLeft(View myView) {
+        if (myView.getParent() == myView.getRootView())
+            return myView.getLeft();
+        else
+            return myView.getLeft() + getRelativeLeft((View) myView.getParent());
+    }
+
+    private int getRelativeTop(View myView) {
+        if (myView.getParent() == myView.getRootView())
+            return myView.getTop();
+        else
+            return myView.getTop() + getRelativeTop((View) myView.getParent());
     }
 
     AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener() {
@@ -44,24 +89,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            int width = roundedRectangle.getMeasuredWidth() - ivSun.getMeasuredWidth();
-            float coordX = (float) width * firstVisibleItem / 12;
-            if (coordX < 0) {
-                coordX = 0;
+            if (point1 != null) {
+                float t = (float) firstVisibleItem / 12;
+                float x = (1 - t) * (1 - t) * point1.x + (1 - t) * t * point2.x + t * t * point3.x;
+                float y = (1 - t) * (1 - t) * point1.y + (1 - t) * t * point2.y + t * t * point3.y;
+                ViewCompat.animate(mSun).setDuration(1000).translationX(x).translationY(-y).start();
             }
-            float ratioY;
-            if (firstVisibleItem <= 6) {
-                ratioY = (float) firstVisibleItem / 6;
-            } else {
-                ratioY = (float) 1 - (float) (firstVisibleItem - 6) / 6;
-            }
-            float coordY = (float) 300 * ratioY;
-            TranslateAnimation translateAnimation = new TranslateAnimation(currentX, coordX, currentY, coordY);
-            translateAnimation.setDuration(1000);
-            translateAnimation.setFillAfter(true);
-            ivSun.startAnimation(translateAnimation);
-            currentX = coordX;
-            currentY = coordY;
         }
     };
 

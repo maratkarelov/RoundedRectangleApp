@@ -11,22 +11,31 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/ll_iv"
+    <FrameLayout
+        android:id="@+id/frame_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="2"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/ivSun"
+        <mku.roundedrectangleapp.Landscape xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/landscape"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/brown"
+            app:headHeight="200"
+            app:waveHeight="300" />
+
+        <mku.roundedrectangleapp.Sun
+            android:id="@+id/sun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_launcher" />
+            app:radius="50" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/ll_clock"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="4"
@@ -34,7 +43,7 @@
 
 
         <ListView
-            android:id="@+id/lvClock"
+            android:id="@+id/lv_clock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

@@ -3,6 +3,7 @@ package mku.roundedrectangleapp;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -11,29 +12,30 @@ import android.view.View;
 /**
  * Created by user on 09.10.15.
  */
-public class RoundedRectangle extends View {
+public class Landscape extends View {
     private static final int DEFAULT_WAVE_HEIGHT = 100;
     private static final int DEFAULT_HEADER_HEIGHT = 100;
-    private int mWaveHeight = 100;
-    private int mHeadHeight = 200;
+    private int mWaveHeight;
+    private int mHeadHeight;
+
     private Paint paint;
     private Path path;
 
-    public RoundedRectangle(Context context) {
+    public Landscape(Context context) {
         super(context);
-        path = new Path();
-        paint = new Paint();
-        paint.setAntiAlias(true);
     }
-    public RoundedRectangle(Context context, AttributeSet attrs) {
+
+    public Landscape(Context context, AttributeSet attrs) {
         super(context, attrs);
+        paint = new Paint();
+        path = new Path();
         init(context, attrs);
     }
 
     private void init(Context context, AttributeSet attrs) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RoundedRectangle);
-        mWaveHeight = a.getInteger(R.styleable.RoundedRectangle_waveHeight, DEFAULT_WAVE_HEIGHT);
-        mHeadHeight = a.getInteger(R.styleable.RoundedRectangle_headHeight, DEFAULT_HEADER_HEIGHT);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Landscape);
+        mWaveHeight = a.getInteger(R.styleable.Landscape_waveHeight, DEFAULT_WAVE_HEIGHT);
+        mHeadHeight = a.getInteger(R.styleable.Landscape_headHeight, DEFAULT_HEADER_HEIGHT);
         a.recycle();
         setWillNotDraw(false);
     }
@@ -57,10 +59,11 @@ public class RoundedRectangle extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+        paint.setAntiAlias(true);
         path.reset();
-        path.lineTo(0, mHeadHeight);
-        path.quadTo(getMeasuredWidth() / 2, mHeadHeight + mWaveHeight, getMeasuredWidth(), mHeadHeight);
+        paint.setColor(Color.BLUE);
+        path.lineTo(0, mHeadHeight + mWaveHeight);
+        path.quadTo(getMeasuredWidth() / 2, mWaveHeight, getMeasuredWidth(), mHeadHeight + mWaveHeight);
         path.lineTo(getMeasuredWidth(), 0);
         canvas.drawPath(path, paint);
     }
